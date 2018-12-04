@@ -21,14 +21,14 @@ var _glob = _interopRequireDefault(require("glob"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const Parts = ["bundle.js.map", "account_chunk.js.map", "angular.js.map", "atoz_chunk.js.map", "bootstrap_bundle.js.map", "collectionDiscovery_chunk.js.map", "favorites_chunk.js.map", "fullView_chunk.js.map"];
+const Parts = ["app.js.map", "bundle.js.map", "account_chunk.js.map", "angular.js.map", "atoz_chunk.js.map", "bootstrap_bundle.js.map", "collectionDiscovery_chunk.js.map", "favorites_chunk.js.map", "fullView_chunk.js.map", "vendor.js.map"];
 
 async function extract(uri, outDir) {
   outDir = _path.default.resolve(outDir.replace(/^\~/, _os.default.homedir()));
   const mapsDir = `${outDir}/tmp/maps`;
   const filepaths = await downloadMaps(mapsDir, uri);
   await dumpSource(filepaths, outDir);
-  copyFiles(outDir);
+  await copyFiles(outDir);
 }
 
 async function downloadMaps(mapsDir, uri) {
@@ -159,9 +159,9 @@ function dumpTemplates(templatePath, outDir) {
 }
 
 async function copyFiles(outDir) {
-  (0, _glob.default)(`${outDir}/tmp/**/www/components/**`, (er, files) => {
+  (0, _glob.default)(`${outDir}/tmp/**/webapp/components/**`, (er, files) => {
     files.forEach(f => {
-      let copyFile = `${outDir}/source/www/components${f.split('www/components').pop()}`;
+      let copyFile = `${outDir}/source/www/components${f.split('webapp/components').pop()}`;
 
       _mkdirp.default.sync(_path.default.dirname(copyFile));
 

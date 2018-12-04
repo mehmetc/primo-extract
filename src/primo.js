@@ -6,14 +6,17 @@ import axios from 'axios'
 import os from 'os'
 import glob from 'glob'
 
-const Parts = ["bundle.js.map",
+const Parts = [
+    "app.js.map",
+    "bundle.js.map",
     "account_chunk.js.map",
     "angular.js.map",
     "atoz_chunk.js.map",
     "bootstrap_bundle.js.map",
     "collectionDiscovery_chunk.js.map",
     "favorites_chunk.js.map",
-    "fullView_chunk.js.map"
+    "fullView_chunk.js.map",
+    "vendor.js.map"
 ];
 
 async function extract(uri, outDir) {
@@ -22,7 +25,7 @@ async function extract(uri, outDir) {
 
     const filepaths = await downloadMaps(mapsDir, uri);
     await dumpSource(filepaths, outDir);
-    copyFiles(outDir);
+    await copyFiles(outDir);
 }
 
 async function downloadMaps(mapsDir, uri) {
@@ -75,7 +78,7 @@ async function readMapFile(filename) {
 
 async function writeSourceFile(sourceWritePath, source) {
     return new Promise((resolve, reject) => {
-        mkdirp.sync(path.dirname(sourceWritePath));
+        mkdirp.sync(path.dirname(sourceWritePath));        
         fs.writeFile(sourceWritePath, source, (err) => {
             if (err) {
                 console.log(`\n\n\n${path.dirname(sourceWritePath)}\n\n\n`);
@@ -145,10 +148,10 @@ function dumpTemplates(templatePath, outDir) {
     });
 }
 
-async function copyFiles(outDir) {
-    glob(`${outDir}/tmp/**/www/components/**`, (er, files) => {
+async function copyFiles(outDir) {    
+    glob(`${outDir}/tmp/**/webapp/components/**`, (er, files) => {        
         files.forEach((f) => {
-            let copyFile = `${outDir}/source/www/components${f.split('www/components').pop()}`;
+            let copyFile = `${outDir}/source/www/components${f.split('webapp/components').pop()}`;
             mkdirp.sync(path.dirname(copyFile));
             fs.copyFileSync(f, copyFile);
         })
