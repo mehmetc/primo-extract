@@ -9,7 +9,7 @@ yarn global add primo-extract
 ```
 or
 ```
-npm install primo-extract
+npm install primo-extract -g
 ```
 
 __Usage:__
