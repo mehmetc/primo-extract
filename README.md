@@ -1,7 +1,11 @@
 # Primo Extract #
 Extract code and templates from the Primo NUI.
 
-Starting with a new environment is hard expecially if the developer documentation is lacking. Luckily this is JavaScript and ExLibris is kind enough to leave the source-maps on the server. 
+Starting with a new environment is hard expecially if the developer documentation is lacking. Luckily this is JavaScript and ExLibris is kind enough to leave the source-maps on the server.
+
+```
+!!!You need a node.js(7.6 or better) that support async/await!!!
+```
 
 __Install:__
 ```
