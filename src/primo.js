@@ -5,6 +5,7 @@ import mkdirp from 'mkdirp'
 import axios from 'axios'
 import os from 'os'
 import glob from 'glob'
+import {html as beautifyHtml} from 'js-beautify'
 
 const Parts = [
     "app.js.map",
@@ -142,7 +143,7 @@ function dumpTemplates(templatePath, outDir) {
             let sourceWritePath = `${outDir}/source/html/${k}`;
 
             mkdirp(path.dirname(sourceWritePath), function (err) {
-                fs.writeFileSync(sourceWritePath, d[k]);
+                fs.writeFileSync(sourceWritePath, beautifyHtml(d[k]));
             });
         });
     });
