@@ -152,10 +152,14 @@ function dumpTemplates(templatePath, outDir) {
 
 async function copyFiles(outDir) {    
     glob(`${outDir}/tmp/**/webapp/components/**`, (er, files) => {        
-        files.forEach((f) => {
-            let copyFile = `${outDir}/source/www/components${f.split('webapp/components').pop()}`;
-            mkdirp.sync(path.dirname(copyFile));
-            fs.copyFileSync(f, copyFile);
+        files.forEach((f) => {                      
+            try {
+                let copyFile = `${outDir}/source/www/components${f.split(`webapp${path.sep}components`).pop()}`.replace('/', path.sep);
+                mkdirp.sync(path.dirname(copyFile));
+                fs.copyFileSync(f, copyFile);
+            } catch(e) {
+                console.log(e);
+            }
         })
     })
 }
