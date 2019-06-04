@@ -8,12 +8,13 @@ import glob from 'glob'
 import {html as beautifyHtml} from 'js-beautify'
 
 const Parts = [
-    "app.js.map",
-    "bundle.js.map",
     "account_chunk.js.map",
+    "almaViewer_chunk.js.map",
     "angular.js.map",
+    "app.js.map",
     "atoz_chunk.js.map",
     "bootstrap_bundle.js.map",
+    "bundle.js.map",
     "collectionDiscovery_chunk.js.map",
     "favorites_chunk.js.map",
     "fullView_chunk.js.map",
@@ -37,7 +38,7 @@ async function downloadMaps(mapsDir, uri) {
         console.log(`Fetching part ${part}`);
         const file = await getMap(`${uri}/primo-explore/lib/${part}`);
         if (file.status == 200) {
-            const filename = file.request.path.split('/').pop();
+            const filename = path.parse(file.request.path).base;
             const filepath = `${mapsDir}/${filename}`;
             filepaths.push(filepath);
             console.log(`Writing ${filename} to ${filepath}`);

@@ -23,7 +23,7 @@ var _jsBeautify = require("js-beautify");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const Parts = ["app.js.map", "bundle.js.map", "account_chunk.js.map", "angular.js.map", "atoz_chunk.js.map", "bootstrap_bundle.js.map", "collectionDiscovery_chunk.js.map", "favorites_chunk.js.map", "fullView_chunk.js.map", "vendor.js.map"];
+const Parts = ["account_chunk.js.map", "almaViewer_chunk.js.map", "angular.js.map", "app.js.map", "atoz_chunk.js.map", "bootstrap_bundle.js.map", "bundle.js.map", "collectionDiscovery_chunk.js.map", "favorites_chunk.js.map", "fullView_chunk.js.map", "vendor.js.map"];
 
 async function extract(uri, outDir) {
   outDir = _path.default.resolve(outDir.replace(/^\~/, _os.default.homedir()));
@@ -42,7 +42,8 @@ async function downloadMaps(mapsDir, uri) {
     const file = await getMap(`${uri}/primo-explore/lib/${part}`);
 
     if (file.status == 200) {
-      const filename = file.request.path.split('/').pop();
+      const filename = _path.default.parse(file.request.path).base;
+
       const filepath = `${mapsDir}/${filename}`;
       filepaths.push(filepath);
       console.log(`Writing ${filename} to ${filepath}`);
