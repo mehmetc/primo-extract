@@ -156,9 +156,11 @@ async function copyFiles(outDir) {
             try {
                 let copyFile = `${outDir}/source/www/components${f.split(`webapp${path.sep}components`).pop()}`.replace('/', path.sep);
                 mkdirp.sync(path.dirname(copyFile));
-                fs.copyFileSync(f, copyFile);
+                if (fs.existsSync(f) && fs.lstatSync(f).isFile()) {
+                    fs.copyFileSync(f, copyFile);
+                }
             } catch(e) {
-                console.log(e);
+                console.log(e.message);
             }
         })
     })

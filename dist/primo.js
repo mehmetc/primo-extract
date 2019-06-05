@@ -169,9 +169,11 @@ async function copyFiles(outDir) {
 
         _mkdirp.default.sync(_path.default.dirname(copyFile));
 
-        _fs.default.copyFileSync(f, copyFile);
+        if (_fs.default.existsSync(f) && _fs.default.lstatSync(f).isFile()) {
+          _fs.default.copyFileSync(f, copyFile);
+        }
       } catch (e) {
-        console.log(e);
+        console.log(e.message);
       }
     });
   });
