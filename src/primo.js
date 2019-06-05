@@ -39,7 +39,7 @@ async function downloadMaps(mapsDir, uri) {
         const file = await getMap(`${uri}/primo-explore/lib/${part}`);
         if (file.status == 200) {
             const filename = path.parse(file.request.path).base;
-            const filepath = `${mapsDir}/${filename}`;
+            const filepath = `${mapsDir}${path.sep}${filename}`;
             filepaths.push(filepath);
             console.log(`Writing ${filename} to ${filepath}`);
             fs.writeFileSync(filepath, JSON.stringify(file.data));
@@ -98,7 +98,7 @@ async function mapConsumerToSource(map, outDir, subDir) {
             const c = await consumer;
             for (const sourceFile of c.sources) {
                 const source = c.sourceContentFor(sourceFile);
-                const sourceWritePath = `${outDir}/tmp/source/${subDir}/${sourceFile.replace(/^webpack:\/+/,'')}`;
+                const sourceWritePath = `${outDir}${path.sep}tmp${path.sep}source${path.sep}${subDir}/${sourceFile.replace(/^webpack:\/+/,'')}`;
                 await writeSourceFile(sourceWritePath, source);
                 if (/templates.js/.test(sourceWritePath)) {
                     dumpTemplates(sourceWritePath, outDir);
@@ -141,7 +141,7 @@ function dumpTemplates(templatePath, outDir) {
     console.log("\t\tExtracting Templates");
     t.forEach(function (d) {
         Object.keys(d).forEach(function (k) {
-            let sourceWritePath = `${outDir}/source/html/${k}`;
+            let sourceWritePath = `${outDir}${path.sep}source${path.sep}html${path.sep}${k}`;
 
             mkdirp(path.dirname(sourceWritePath), function (err) {
                 fs.writeFileSync(sourceWritePath, beautifyHtml(d[k]));
@@ -154,7 +154,7 @@ async function copyFiles(outDir) {
     glob(`${outDir}/tmp/**/webapp/components/**`, (er, files) => {        
         files.forEach((f) => {                      
             try {
-                let copyFile = `${outDir}/source/www/components${f.split(`webapp${path.sep}components`).pop()}`.replace('/', path.sep);
+                let copyFile = `${outDir}${path.sep}source${path.sep}www${path.sep}components${f.split(`webapp${path.sep}components`).pop()}`.replace('/', path.sep);
                 mkdirp.sync(path.dirname(copyFile));
                 if (fs.existsSync(f) && fs.lstatSync(f).isFile()) {
                     fs.copyFileSync(f, copyFile);

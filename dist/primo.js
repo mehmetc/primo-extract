@@ -44,7 +44,7 @@ async function downloadMaps(mapsDir, uri) {
     if (file.status == 200) {
       const filename = _path.default.parse(file.request.path).base;
 
-      const filepath = `${mapsDir}/${filename}`;
+      const filepath = `${mapsDir}${_path.default.sep}${filename}`;
       filepaths.push(filepath);
       console.log(`Writing ${filename} to ${filepath}`);
 
@@ -108,7 +108,7 @@ async function mapConsumerToSource(map, outDir, subDir) {
 
       for (const sourceFile of c.sources) {
         const source = c.sourceContentFor(sourceFile);
-        const sourceWritePath = `${outDir}/tmp/source/${subDir}/${sourceFile.replace(/^webpack:\/+/, '')}`;
+        const sourceWritePath = `${outDir}${_path.default.sep}tmp${_path.default.sep}source${_path.default.sep}${subDir}/${sourceFile.replace(/^webpack:\/+/, '')}`;
         await writeSourceFile(sourceWritePath, source);
 
         if (/templates.js/.test(sourceWritePath)) {
@@ -153,7 +153,7 @@ function dumpTemplates(templatePath, outDir) {
   console.log("\t\tExtracting Templates");
   t.forEach(function (d) {
     Object.keys(d).forEach(function (k) {
-      let sourceWritePath = `${outDir}/source/html/${k}`;
+      let sourceWritePath = `${outDir}${_path.default.sep}source${_path.default.sep}html${_path.default.sep}${k}`;
       (0, _mkdirp.default)(_path.default.dirname(sourceWritePath), function (err) {
         _fs.default.writeFileSync(sourceWritePath, (0, _jsBeautify.html)(d[k]));
       });
@@ -165,7 +165,7 @@ async function copyFiles(outDir) {
   (0, _glob.default)(`${outDir}/tmp/**/webapp/components/**`, (er, files) => {
     files.forEach(f => {
       try {
-        let copyFile = `${outDir}/source/www/components${f.split(`webapp${_path.default.sep}components`).pop()}`.replace('/', _path.default.sep);
+        let copyFile = `${outDir}${_path.default.sep}source${_path.default.sep}www${_path.default.sep}components${f.split(`webapp${_path.default.sep}components`).pop()}`.replace('/', _path.default.sep);
 
         _mkdirp.default.sync(_path.default.dirname(copyFile));
 
