@@ -1,6 +1,6 @@
 {
   "name": "primo-extract",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Extract all sources and templates from a Primo environment",
   "main": "dist/primo.js",
   "bin": {
