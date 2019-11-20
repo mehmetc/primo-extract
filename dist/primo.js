@@ -108,8 +108,30 @@ async function mapConsumerToSource(map, outDir, subDir) {
 
       for (const sourceFile of c.sources) {
         const source = c.sourceContentFor(sourceFile);
+
+        const fileExt = _path.default.extname(sourceFile);
+
+        let beautifiedSource = ""; //console.log(sourceFile, fileExt);
+
+        switch (fileExt) {
+          case "ts":
+            beautifiedSource = (0, _jsBeautify.js)(source);
+            break;
+
+          case "js":
+            beautifiedSource = (0, _jsBeautify.js)(source);
+            break;
+
+          case "html":
+            beautifiedSource = (0, _jsBeautify.html)(source);
+            break;
+
+          default:
+            beautifiedSource = source;
+        }
+
         const sourceWritePath = `${outDir}${_path.default.sep}tmp${_path.default.sep}source${_path.default.sep}${subDir}/${sourceFile.replace(/^webpack:\/+/, '')}`;
-        await writeSourceFile(sourceWritePath, source);
+        await writeSourceFile(sourceWritePath, beautifiedSource);
 
         if (/templates.js/.test(sourceWritePath)) {
           dumpTemplates(sourceWritePath, outDir);

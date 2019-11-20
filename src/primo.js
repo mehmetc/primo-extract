@@ -6,6 +6,7 @@ import axios from 'axios'
 import os from 'os'
 import glob from 'glob'
 import {html as beautifyHtml} from 'js-beautify'
+import {js as beautifyJS} from 'js-beautify'
 
 const Parts = [
     "account_chunk.js.map",
@@ -98,8 +99,27 @@ async function mapConsumerToSource(map, outDir, subDir) {
             const c = await consumer;
             for (const sourceFile of c.sources) {
                 const source = c.sourceContentFor(sourceFile);
+                const fileExt = path.extname(sourceFile);
+                let beautifiedSource = "";
+                //console.log(sourceFile, fileExt);
+
+                switch(fileExt) {
+                    case "ts":
+                        beautifiedSource = beautifyJS(source)
+                        break;
+                    case "js":
+                            beautifiedSource = beautifyJS(source)
+                            break;    
+                    case "html":
+                            beautifiedSource = beautifyHtml(source)
+                            break;    
+                    default:
+                        beautifiedSource = source;
+                }
+
+
                 const sourceWritePath = `${outDir}${path.sep}tmp${path.sep}source${path.sep}${subDir}/${sourceFile.replace(/^webpack:\/+/,'')}`;
-                await writeSourceFile(sourceWritePath, source);
+                await writeSourceFile(sourceWritePath, beautifiedSource);
                 if (/templates.js/.test(sourceWritePath)) {
                     dumpTemplates(sourceWritePath, outDir);
                 }

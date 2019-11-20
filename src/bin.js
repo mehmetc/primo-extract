@@ -14,7 +14,7 @@ function usage(){
     console.log("usage: primoExtract --primo=https://your.primo.instance --outDir=/directory/to/exported/source\n\n");
 }
 
-console.log("\nPrimo Extract NUI source code.\n\n\tWhen code is the manual ...\n\nKULeuven/LIBIS (c)2018\n\n");
+console.log("\nPrimo Extract NUI source code.\n\n\tWhen code is the manual ...\n\nKULeuven/LIBIS (c)2019\n\n");
 
 
 var argv = minimist(process.argv.slice(2),{
