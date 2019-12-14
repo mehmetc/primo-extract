@@ -39,16 +39,21 @@ async function downloadMaps(mapsDir, uri) {
   let filepaths = [];
   await Promise.all(Parts.map(async part => {
     console.log(`Fetching part ${part}`);
-    const file = await getMap(`${uri}/primo-explore/lib/${part}`);
 
-    if (file.status == 200) {
-      const filename = _path.default.parse(file.request.path).base;
+    try {
+      const file = await getMap(`${uri}/primo-explore/lib/${part}`);
 
-      const filepath = `${mapsDir}${_path.default.sep}${filename}`;
-      filepaths.push(filepath);
-      console.log(`Writing ${filename} to ${filepath}`);
+      if (file.status == 200) {
+        const filename = _path.default.parse(file.request.path).base;
 
-      _fs.default.writeFileSync(filepath, JSON.stringify(file.data));
+        const filepath = `${mapsDir}${_path.default.sep}${filename}`;
+        filepaths.push(filepath);
+        console.log(`Writing ${filename} to ${filepath}`);
+
+        _fs.default.writeFileSync(filepath, JSON.stringify(file.data));
+      }
+    } catch (e) {
+      console.log(`\tError (don't panic, yet) fetching part ${part}`);
     }
   }));
   return filepaths;

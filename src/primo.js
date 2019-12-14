@@ -37,6 +37,7 @@ async function downloadMaps(mapsDir, uri) {
 
     await Promise.all(Parts.map(async (part) => {
         console.log(`Fetching part ${part}`);
+        try {
         const file = await getMap(`${uri}/primo-explore/lib/${part}`);
         if (file.status == 200) {
             const filename = path.parse(file.request.path).base;
@@ -45,6 +46,8 @@ async function downloadMaps(mapsDir, uri) {
             console.log(`Writing ${filename} to ${filepath}`);
             fs.writeFileSync(filepath, JSON.stringify(file.data));
 
+        }} catch(e) {
+            console.log(`\tError (don't panic, yet) fetching part ${part}`);
         }
     }));
     return filepaths;
