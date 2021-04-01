@@ -23,6 +23,19 @@ var _jsBeautify = require("js-beautify");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// const Parts = [
+//     "account_chunk.js.map",
+//     "almaViewer_chunk.js.map",
+//     "angular.js.map",
+//     "app.js.map",
+//     "atoz_chunk.js.map",
+//     "bootstrap_bundle.js.map",
+//     "bundle.js.map",
+//     "collectionDiscovery_chunk.js.map",
+//     "favorites_chunk.js.map",
+//     "fullView_chunk.js.map",
+//     "vendor.js.map"
+// ];
 const Parts = ["account_chunk.js.map", "almaViewer_chunk.js.map", "angular.js.map", "app.js.map", "atoz_chunk.js.map", "bootstrap_bundle.js.map", "bundle.js.map", "collectionDiscovery_chunk.js.map", "favorites_chunk.js.map", "fullView_chunk.js.map", "vendor.js.map"];
 
 async function extract(uri, outDir) {
@@ -181,9 +194,10 @@ function dumpTemplates(templatePath, outDir) {
   t.forEach(function (d) {
     Object.keys(d).forEach(function (k) {
       let sourceWritePath = `${outDir}${_path.default.sep}source${_path.default.sep}html${_path.default.sep}${k}`;
-      (0, _mkdirp.default)(_path.default.dirname(sourceWritePath), function (err) {
-        _fs.default.writeFileSync(sourceWritePath, (0, _jsBeautify.html)(d[k]));
-      });
+
+      _mkdirp.default.sync(_path.default.dirname(sourceWritePath));
+
+      _fs.default.writeFileSync(sourceWritePath, (0, _jsBeautify.html)(d[k]));
     });
   });
 }
