@@ -1,13 +1,9 @@
 "use strict";
 
 var _package = require("../package.json");
-
 var _minimist = _interopRequireDefault(require("minimist"));
-
 var _primo = _interopRequireDefault(require("./primo"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 /**
  * Primo Extract
  * 
@@ -16,12 +12,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * KULeuven/LIBIS
  * Mehmet Celik (c) 2018
  */
-"use strict";
 
+"use strict";
 function usage() {
   console.log("usage: primoExtract --primo=https://your.primo.instance --outDir=/directory/to/exported/source\n\n");
 }
-
 console.log(`\nPrimo Extract NUI source code.\nversion ${_package.version}\n\tWhen code is the manual ...\n\nKULeuven/LIBIS (c)2021\n\n`);
 var argv = (0, _minimist.default)(process.argv.slice(2), {
   string: 'primo',
@@ -30,12 +25,10 @@ var argv = (0, _minimist.default)(process.argv.slice(2), {
     h: 'help'
   }
 });
-
 if (argv.h || argv.help) {
   usage();
   process.exit(1);
 }
-
 if (Object.keys(argv).includes("primo")) {
   let primoUri = argv.primo;
   let outDir = Object.keys(argv).includes('outDir') ? argv.outDir : process.cwd();
