@@ -27,7 +27,21 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //     "vendor.js.map"
 // ];
 
-const Parts = ["account_chunk.js.map", "almaViewer_chunk.js.map", "angular.js.map", "app.js.map", "atoz_chunk.js.map", "bootstrap_bundle.js.map", "bundle.js.map", "collectionDiscovery_chunk.js.map", "favorites_chunk.js.map", "fullView_chunk.js.map", "vendor.js.map"];
+// const Parts = [
+//     "account_chunk.js.map",
+//     "almaViewer_chunk.js.map",
+//     "angular.js.map",
+//     "app.js.map",
+//     "atoz_chunk.js.map",
+//     "bootstrap_bundle.js.map",
+//     "bundle.js.map",
+//     "collectionDiscovery_chunk.js.map",
+//     "favorites_chunk.js.map",
+//     "fullView_chunk.js.map",
+//     "vendor.js.map"];
+
+// Primo February 2023 Release
+const Parts = ["account_chunk_web_pack_generated.js.map", "almaViewer_chunk_web_pack_generated.js.map", "angular.js.map", "atoz_chunk_web_pack_generated.js.map", "bootstrap_bundle.js.map", "bundle.js.map", "collectionDiscovery_chunk_web_pack_generated.js.map", "favorites_chunk_web_pack_generated.js.map", "fullView_chunk_web_pack_generated.js.map"];
 async function extract(uri, outDir) {
   outDir = _path.default.resolve(outDir.replace(/^\~/, _os.default.homedir()));
   const mapsDir = `${outDir}/tmp/maps`;

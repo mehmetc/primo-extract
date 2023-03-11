@@ -23,18 +23,30 @@ import { js as beautifyJS } from 'js-beautify'
 // ];
 
 
+// const Parts = [
+//     "account_chunk.js.map",
+//     "almaViewer_chunk.js.map",
+//     "angular.js.map",
+//     "app.js.map",
+//     "atoz_chunk.js.map",
+//     "bootstrap_bundle.js.map",
+//     "bundle.js.map",
+//     "collectionDiscovery_chunk.js.map",
+//     "favorites_chunk.js.map",
+//     "fullView_chunk.js.map",
+//     "vendor.js.map"];
+
+// Primo February 2023 Release
 const Parts = [
-    "account_chunk.js.map",
-    "almaViewer_chunk.js.map",
+    "account_chunk_web_pack_generated.js.map",
+    "almaViewer_chunk_web_pack_generated.js.map",
     "angular.js.map",
-    "app.js.map",
-    "atoz_chunk.js.map",
+    "atoz_chunk_web_pack_generated.js.map",
     "bootstrap_bundle.js.map",
     "bundle.js.map",
-    "collectionDiscovery_chunk.js.map",
-    "favorites_chunk.js.map",                
-    "fullView_chunk.js.map",
-    "vendor.js.map"];
+    "collectionDiscovery_chunk_web_pack_generated.js.map",
+    "favorites_chunk_web_pack_generated.js.map",
+    "fullView_chunk_web_pack_generated.js.map"];
 
 async function extract(uri, outDir) {
     outDir = path.resolve(outDir.replace(/^\~/, os.homedir()));
