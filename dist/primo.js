@@ -13,47 +13,24 @@ var _os = _interopRequireDefault(require("os"));
 var _glob = _interopRequireDefault(require("glob"));
 var _jsBeautify = require("js-beautify");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-//const Parts = [
-//    "account_chunk.js.map",
-//    "almaViewer_chunk.js.map",
-//    "angular.js.map",
-//    "app.js.map",
-//    "atoz_chunk.js.map",
-//    "bootstrap_bundle.js.map",
-//    "bundle.js.map",
-//    "collectionDiscovery_chunk.js.map",
-//    "favorites_chunk.js.map",                
-//    "fullView_chunk.js.map",
-//    "vendor.js.map"];
-
-// Primo February 2023 Release
-// const Parts = [
-//     "account_chunk_web_pack_generated.js.map",
-//     "almaViewer_chunk_web_pack_generated.js.map",
-//     "angular.js.map",
-//     "atoz_chunk_web_pack_generated.js.map",
-//     "bootstrap_bundle.js.map",
-//     "bundle.js.map",
-//     "collectionDiscovery_chunk_web_pack_generated.js.map",
-//     "favorites_chunk_web_pack_generated.js.map",
-//     "fullView_chunk_web_pack_generated.js.map"];
 // Primo May 2023 Release
-const Parts = ["app.js.map", "vendor.js.map", "custom.js.map", "account_chunk.js.map", "almaViewer_chunk.js.map", "fullView_chunk.js.map", "favorites_chunk.js.map", "collectionDiscovery_chunk.js.map", "atoz_chunk.js.map", "account_chunk_web_pack_generated.js.map", "almaViewer_chunk_web_pack_generated.js.map", "angular.js.map", "atoz_chunk_web_pack_generated.js.map", "bootstrap_bundle.js.map", "bundle.js.map", "collectionDiscovery_chunk_web_pack_generated.js.map", "favorites_chunk_web_pack_generated.js.map", "fullView_chunk_web_pack_generated.js.map"];
-async function extract(uri, outDir) {
+const Parts = ["app.js.map", "vendor.js.map", "account_chunk.js.map", "almaViewer_chunk.js.map", "fullView_chunk.js.map", "favorites_chunk.js.map", "collectionDiscovery_chunk.js.map", "atoz_chunk.js.map", "account_chunk_web_pack_generated.js.map", "almaViewer_chunk_web_pack_generated.js.map", "angular.js.map", "atoz_chunk_web_pack_generated.js.map", "bootstrap_bundle.js.map", "bundle.js.map", "collectionDiscovery_chunk_web_pack_generated.js.map", "favorites_chunk_web_pack_generated.js.map", "fullView_chunk_web_pack_generated.js.map"];
+async function extract(uri, outDir, primoType = 'primo-explore') {
   outDir = _path.default.resolve(outDir.replace(/^\~/, _os.default.homedir()));
   const mapsDir = `${outDir}/tmp/maps`;
-  const filepaths = await downloadMaps(mapsDir, uri);
+  const filepaths = await downloadMaps(mapsDir, uri, primoType);
   await dumpSource(filepaths, outDir);
   await copyFiles(outDir);
 }
-async function downloadMaps(mapsDir, uri) {
+async function downloadMaps(mapsDir, uri, primoType = 'primo-explore') {
   console.log(mapsDir);
   _mkdirp.default.sync(mapsDir);
   let filepaths = [];
+  console.log(`Primo type = ${primoType}`);
   await Promise.all(Parts.map(async part => {
     console.log(`Fetching part ${part}`);
     try {
-      const file = await getMap(`${uri}/primo-explore/lib/${part}`);
+      const file = await getMap(`${uri}/${primoType}/lib/${part}`);
       if (file.status == 200) {
         const filename = _path.default.parse(file.request.path).base;
         const filepath = `${mapsDir}${_path.default.sep}${filename}`;
@@ -68,7 +45,9 @@ async function downloadMaps(mapsDir, uri) {
   return filepaths;
 }
 async function getMap(uri) {
-  return _axios.default.get(uri);
+  return _axios.default.get(uri, {
+    validateStatus: () => true
+  });
 }
 async function dumpSource(filepaths, outDir) {
   console.log('\tParsing maps');

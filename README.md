@@ -1,7 +1,6 @@
 # Primo Extract #
 Extract code and templates from the Primo NUI.
 
-Starting with a new environment is hard expecially if the developer documentation is lacking. Luckily this is JavaScript and ExLibris is kind enough to leave the source-maps on the server.
 
 ```
 !!!You need a node.js(7.6 or better) that support async/await!!!
@@ -18,10 +17,10 @@ npm install primo-extract -g
 
 __Usage:__
 ```
-primoExtract --primo=https://your.primo.instance --outDir=/directory/to/exported/source
+primoExtract --primo=https://your.primo.instance --outDir=/directory/to/exported/source --ve=false
 ```
 
 Example: Getting the code from the Primo QA environment
 ```
-primoExtract --primo=https://primo-qa.hosted.exlibrisgroup.com --outDir=./primoSourceCode
+primoExtract --primo=https://primo-qa.hosted.exlibrisgroup.com --outDir=./primoSourceCode --ve=false
 ```

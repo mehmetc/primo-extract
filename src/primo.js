@@ -8,37 +8,11 @@ import glob from 'glob'
 import { html as beautifyHtml } from 'js-beautify'
 import { js as beautifyJS } from 'js-beautify'
 
-//const Parts = [
-//    "account_chunk.js.map",
-//    "almaViewer_chunk.js.map",
-//    "angular.js.map",
-//    "app.js.map",
-//    "atoz_chunk.js.map",
-//    "bootstrap_bundle.js.map",
-//    "bundle.js.map",
-//    "collectionDiscovery_chunk.js.map",
-//    "favorites_chunk.js.map",                
-//    "fullView_chunk.js.map",
-//    "vendor.js.map"];
-
-
-// Primo February 2023 Release
-// const Parts = [
-//     "account_chunk_web_pack_generated.js.map",
-//     "almaViewer_chunk_web_pack_generated.js.map",
-//     "angular.js.map",
-//     "atoz_chunk_web_pack_generated.js.map",
-//     "bootstrap_bundle.js.map",
-//     "bundle.js.map",
-//     "collectionDiscovery_chunk_web_pack_generated.js.map",
-//     "favorites_chunk_web_pack_generated.js.map",
-//     "fullView_chunk_web_pack_generated.js.map"];
 
 // Primo May 2023 Release
 const Parts = [
     "app.js.map",
     "vendor.js.map",
-    "custom.js.map",
     "account_chunk.js.map",
     "almaViewer_chunk.js.map",
     "fullView_chunk.js.map",
@@ -55,24 +29,25 @@ const Parts = [
     "favorites_chunk_web_pack_generated.js.map",
     "fullView_chunk_web_pack_generated.js.map"];
 
-async function extract(uri, outDir) {
+async function extract(uri, outDir, primoType = 'primo-explore' ) {
     outDir = path.resolve(outDir.replace(/^\~/, os.homedir()));
     const mapsDir = `${outDir}/tmp/maps`;
 
-    const filepaths = await downloadMaps(mapsDir, uri);
+    const filepaths = await downloadMaps(mapsDir, uri, primoType);
     await dumpSource(filepaths, outDir);
     await copyFiles(outDir);
 }
 
-async function downloadMaps(mapsDir, uri) {
+async function downloadMaps(mapsDir, uri, primoType = 'primo-explore') {
     console.log(mapsDir);
     mkdirp.sync(mapsDir);
     let filepaths = []
 
+    console.log(`Primo type = ${primoType}`);
     await Promise.all(Parts.map(async (part) => {
         console.log(`Fetching part ${part}`);
-        try {
-            const file = await getMap(`${uri}/primo-explore/lib/${part}`);
+        try {              
+            const file = await getMap(`${uri}/${primoType}/lib/${part}`);            
             if (file.status == 200) {
                 const filename = path.parse(file.request.path).base;
                 const filepath = `${mapsDir}${path.sep}${filename}`;
@@ -89,7 +64,9 @@ async function downloadMaps(mapsDir, uri) {
 }
 
 async function getMap(uri) {
-    return axios.get(uri);
+    return axios.get(uri, {
+        validateStatus: () => true,
+    });
 }
 
 

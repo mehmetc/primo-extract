@@ -12,14 +12,15 @@ import extract from './primo'
 "use strict";
 
 function usage(){
-    console.log("usage: primoExtract --primo=https://your.primo.instance --outDir=/directory/to/exported/source\n\n");
+    console.log("usage: primoExtract --primo=https://your.primo.instance --outDir=/directory/to/exported/source --ve=false\n\n");
 }
 
-console.log(`\nPrimo Extract NUI source code.\nversion ${version}\n\tWhen code is the manual ...\n\nKULeuven/LIBIS (c)2023\n\n`);
+console.log(`\nPrimo Extract NUI source code.\nversion ${version}\n\tWhen code is the manual :( ...\n\nKULeuven/LIBIS (c)2023\n\n`);
 
 
 var argv = minimist(process.argv.slice(2),{
     string: 'primo',
+    boolean: 've',
     boolean: ['help'],
     alias: { h: 'help'}
 });
@@ -32,7 +33,11 @@ if (argv.h || argv.help) {
 if (Object.keys(argv).includes("primo")) {
     let primoUri = argv.primo;
     let outDir = Object.keys(argv).includes('outDir') ? argv.outDir : process.cwd()    
-    extract(primoUri, outDir);
+    if (argv.ve == true) {        
+        extract(primoUri, outDir, 'discovery');
+    } else {        
+        extract(primoUri, outDir, 'primo-explore');    
+    }   
 } else {
     usage();
 }
