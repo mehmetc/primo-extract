@@ -23,7 +23,28 @@ import { js as beautifyJS } from 'js-beautify'
 
 
 // Primo February 2023 Release
+// const Parts = [
+//     "account_chunk_web_pack_generated.js.map",
+//     "almaViewer_chunk_web_pack_generated.js.map",
+//     "angular.js.map",
+//     "atoz_chunk_web_pack_generated.js.map",
+//     "bootstrap_bundle.js.map",
+//     "bundle.js.map",
+//     "collectionDiscovery_chunk_web_pack_generated.js.map",
+//     "favorites_chunk_web_pack_generated.js.map",
+//     "fullView_chunk_web_pack_generated.js.map"];
+
+// Primo May 2023 Release
 const Parts = [
+    "app.js.map",
+    "vendor.js.map",
+    "custom.js.map",
+    "account_chunk.js.map",
+    "almaViewer_chunk.js.map",
+    "fullView_chunk.js.map",
+    "favorites_chunk.js.map",
+    "collectionDiscovery_chunk.js.map",
+    "atoz_chunk.js.map",
     "account_chunk_web_pack_generated.js.map",
     "almaViewer_chunk_web_pack_generated.js.map",
     "angular.js.map",
@@ -44,7 +65,7 @@ async function extract(uri, outDir) {
 }
 
 async function downloadMaps(mapsDir, uri) {
-console.log(mapsDir);
+    console.log(mapsDir);
     mkdirp.sync(mapsDir);
     let filepaths = []
 
@@ -181,17 +202,17 @@ function dumpTemplates(templatePath, outDir) {
             let sourceWritePath = `${outDir}${path.sep}source${path.sep}html${path.sep}${k}`;
 
             mkdirp.sync(path.dirname(sourceWritePath));
-            fs.writeFileSync(sourceWritePath, beautifyHtml(d[k]));            
+            fs.writeFileSync(sourceWritePath, beautifyHtml(d[k]));
         });
     });
 }
 
 async function copyFiles(outDir) {
+    console.log("\t\tCopying code");
     glob(`${outDir}/tmp/**/webapp/components/**`, (er, files) => {
         files.forEach((f) => {
             try {
                 let copyFile = `${outDir}${path.sep}source${path.sep}www${path.sep}components${f.split(`webapp${path.sep}components`).pop()}`.replace('/', path.sep);
-                
                 mkdirp.sync(path.dirname(copyFile));
                 if (fs.existsSync(f) && fs.lstatSync(f).isFile()) {
                     fs.copyFileSync(f, copyFile);

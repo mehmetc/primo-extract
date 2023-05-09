@@ -25,8 +25,20 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //    "favorites_chunk.js.map",                
 //    "fullView_chunk.js.map",
 //    "vendor.js.map"];
+
 // Primo February 2023 Release
-const Parts = ["account_chunk_web_pack_generated.js.map", "almaViewer_chunk_web_pack_generated.js.map", "angular.js.map", "atoz_chunk_web_pack_generated.js.map", "bootstrap_bundle.js.map", "bundle.js.map", "collectionDiscovery_chunk_web_pack_generated.js.map", "favorites_chunk_web_pack_generated.js.map", "fullView_chunk_web_pack_generated.js.map"];
+// const Parts = [
+//     "account_chunk_web_pack_generated.js.map",
+//     "almaViewer_chunk_web_pack_generated.js.map",
+//     "angular.js.map",
+//     "atoz_chunk_web_pack_generated.js.map",
+//     "bootstrap_bundle.js.map",
+//     "bundle.js.map",
+//     "collectionDiscovery_chunk_web_pack_generated.js.map",
+//     "favorites_chunk_web_pack_generated.js.map",
+//     "fullView_chunk_web_pack_generated.js.map"];
+// Primo May 2023 Release
+const Parts = ["app.js.map", "vendor.js.map", "custom.js.map", "account_chunk.js.map", "almaViewer_chunk.js.map", "fullView_chunk.js.map", "favorites_chunk.js.map", "collectionDiscovery_chunk.js.map", "atoz_chunk.js.map", "account_chunk_web_pack_generated.js.map", "almaViewer_chunk_web_pack_generated.js.map", "angular.js.map", "atoz_chunk_web_pack_generated.js.map", "bootstrap_bundle.js.map", "bundle.js.map", "collectionDiscovery_chunk_web_pack_generated.js.map", "favorites_chunk_web_pack_generated.js.map", "fullView_chunk_web_pack_generated.js.map"];
 async function extract(uri, outDir) {
   outDir = _path.default.resolve(outDir.replace(/^\~/, _os.default.homedir()));
   const mapsDir = `${outDir}/tmp/maps`;
@@ -163,6 +175,7 @@ function dumpTemplates(templatePath, outDir) {
   });
 }
 async function copyFiles(outDir) {
+  console.log("\t\tCopying code");
   (0, _glob.default)(`${outDir}/tmp/**/webapp/components/**`, (er, files) => {
     files.forEach(f => {
       try {
