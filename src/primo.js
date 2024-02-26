@@ -8,7 +8,6 @@ import glob from 'glob'
 import { html as beautifyHtml } from 'js-beautify'
 import { js as beautifyJS } from 'js-beautify'
 
-
 // Primo May 2023 Release
 // const Parts = [
 //     "app.js.map",
@@ -28,9 +27,11 @@ import { js as beautifyJS } from 'js-beautify'
 //     "collectionDiscovery_chunk_web_pack_generated.js.map",
 //     "favorites_chunk_web_pack_generated.js.map",
 //     "fullView_chunk_web_pack_generated.js.map"];
+
 // Primo February 2024 Release
 const Parts = ["bundle.js.map"];
-async function extract(uri, outDir, primoType = 'primo-explore' ) {
+
+async function extract(uri, outDir, primoType = 'discovery' ) {
     outDir = path.resolve(outDir.replace(/^\~/, os.homedir()));
     const mapsDir = `${outDir}/tmp/maps`;
 

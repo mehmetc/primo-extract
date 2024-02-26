@@ -17,7 +17,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function usage() {
   console.log("usage: primoExtract --primo=https://your.primo.instance --outDir=/directory/to/exported/source --ve=false\n\n");
 }
-console.log(`\nPrimo Extract NUI source code.\nversion ${_package.version}\n\tWhen code is the manual :( ...\n\nKULeuven/LIBIS (c)2023\n\n`);
+console.log(`\nPrimo Extract NUI source code.\nversion ${_package.version}. Optimized for PrimoVE. Use version <0.14 for Primo Classic\n\tWhen code is the manual ...\n\nKULeuven/LIBIS (c)2024\n\n`);
 var argv = (0, _minimist.default)(process.argv.slice(2), {
   string: 'primo',
   boolean: 've',
@@ -33,12 +33,10 @@ if (argv.h || argv.help) {
 if (Object.keys(argv).includes("primo")) {
   let primoUri = argv.primo;
   let outDir = Object.keys(argv).includes('outDir') ? argv.outDir : process.cwd();
-  if (argv.ve == true) {
-    console.log('discovery');
-    (0, _primo.default)(primoUri, outDir, 'discovery');
-  } else {
-    console.log('primo-explore');
+  if (argv.ve == false) {
     (0, _primo.default)(primoUri, outDir, 'primo-explore');
+  } else {
+    (0, _primo.default)(primoUri, outDir, 'discovery');
   }
 } else {
   usage();

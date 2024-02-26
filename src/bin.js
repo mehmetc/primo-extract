@@ -33,10 +33,10 @@ if (argv.h || argv.help) {
 if (Object.keys(argv).includes("primo")) {
     let primoUri = argv.primo;
     let outDir = Object.keys(argv).includes('outDir') ? argv.outDir : process.cwd()    
-    if (argv.ve == true) {        
-        extract(primoUri, outDir, 'discovery');
-    } else {        
+    if (argv.ve == false) {        
         extract(primoUri, outDir, 'primo-explore');    
+    } else {        
+        extract(primoUri, outDir, 'discovery');        
     }   
 } else {
     usage();

@@ -14,15 +14,35 @@ var _glob = _interopRequireDefault(require("glob"));
 var _jsBeautify = require("js-beautify");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 // Primo May 2023 Release
-const Parts = ["app.js.map", "vendor.js.map", "account_chunk.js.map", "almaViewer_chunk.js.map", "fullView_chunk.js.map", "favorites_chunk.js.map", "collectionDiscovery_chunk.js.map", "atoz_chunk.js.map", "account_chunk_web_pack_generated.js.map", "almaViewer_chunk_web_pack_generated.js.map", "angular.js.map", "atoz_chunk_web_pack_generated.js.map", "bootstrap_bundle.js.map", "bundle.js.map", "collectionDiscovery_chunk_web_pack_generated.js.map", "favorites_chunk_web_pack_generated.js.map", "fullView_chunk_web_pack_generated.js.map"];
-async function extract(uri, outDir, primoType = 'primo-explore') {
+// const Parts = [
+//     "app.js.map",
+//     "vendor.js.map",
+//     "account_chunk.js.map",
+//     "almaViewer_chunk.js.map",
+//     "fullView_chunk.js.map",
+//     "favorites_chunk.js.map",
+//     "collectionDiscovery_chunk.js.map",
+//     "atoz_chunk.js.map",
+//     "account_chunk_web_pack_generated.js.map",
+//     "almaViewer_chunk_web_pack_generated.js.map",
+//     "angular.js.map",
+//     "atoz_chunk_web_pack_generated.js.map",
+//     "bootstrap_bundle.js.map",
+//     "bundle.js.map",
+//     "collectionDiscovery_chunk_web_pack_generated.js.map",
+//     "favorites_chunk_web_pack_generated.js.map",
+//     "fullView_chunk_web_pack_generated.js.map"];
+
+// Primo February 2024 Release
+const Parts = ["bundle.js.map"];
+async function extract(uri, outDir, primoType = 'discovery') {
   outDir = _path.default.resolve(outDir.replace(/^\~/, _os.default.homedir()));
   const mapsDir = `${outDir}/tmp/maps`;
   const filepaths = await downloadMaps(mapsDir, uri, primoType);
   await dumpSource(filepaths, outDir);
   await copyFiles(outDir);
 }
-async function downloadMaps(mapsDir, uri, primoType = 'primo-explore') {
+async function downloadMaps(mapsDir, uri, primoType = 'discovery') {
   console.log(mapsDir);
   _mkdirp.default.sync(mapsDir);
   let filepaths = [];
@@ -154,20 +174,18 @@ function dumpTemplates(templatePath, outDir) {
   });
 }
 async function copyFiles(outDir) {
-  console.log("\t\tCopying code");
-  (0, _glob.default)(`${outDir}/tmp/**/webapp/components/**`, (er, files) => {
-    files.forEach(f => {
-      try {
-        let copyFile = `${outDir}${_path.default.sep}source${_path.default.sep}www${_path.default.sep}components${f.split(`webapp${_path.default.sep}components`).pop()}`.replace('/', _path.default.sep);
-        _mkdirp.default.sync(_path.default.dirname(copyFile));
-        if (_fs.default.existsSync(f) && _fs.default.lstatSync(f).isFile()) {
-          _fs.default.copyFileSync(f, copyFile);
-        }
-      } catch (e) {
-        console.log(e.message);
+  const files = await (0, _glob.default)(`${outDir}/tmp/**/webapp/components/**`);
+  console.log(`\tCopying source files(${files.length})`);
+  files.forEach(f => {
+    try {
+      let copyFile = `${outDir}${_path.default.sep}source${_path.default.sep}www${_path.default.sep}components${f.split(`webapp${_path.default.sep}components`).pop()}`.replace("/", _path.default.sep);
+      _mkdirp.default.sync(_path.default.dirname(copyFile));
+      if (_fs.default.existsSync(f) && _fs.default.lstatSync(f).isFile()) {
+        _fs.default.copyFileSync(f, copyFile);
       }
-    });
+    } catch (e) {
+      console.log(e.message);
+    }
   });
 }
-var _default = extract;
-exports.default = _default;
+var _default = exports.default = extract;
