@@ -10,25 +10,26 @@ import { js as beautifyJS } from 'js-beautify'
 
 
 // Primo May 2023 Release
-const Parts = [
-    "app.js.map",
-    "vendor.js.map",
-    "account_chunk.js.map",
-    "almaViewer_chunk.js.map",
-    "fullView_chunk.js.map",
-    "favorites_chunk.js.map",
-    "collectionDiscovery_chunk.js.map",
-    "atoz_chunk.js.map",
-    "account_chunk_web_pack_generated.js.map",
-    "almaViewer_chunk_web_pack_generated.js.map",
-    "angular.js.map",
-    "atoz_chunk_web_pack_generated.js.map",
-    "bootstrap_bundle.js.map",
-    "bundle.js.map",
-    "collectionDiscovery_chunk_web_pack_generated.js.map",
-    "favorites_chunk_web_pack_generated.js.map",
-    "fullView_chunk_web_pack_generated.js.map"];
-
+// const Parts = [
+//     "app.js.map",
+//     "vendor.js.map",
+//     "account_chunk.js.map",
+//     "almaViewer_chunk.js.map",
+//     "fullView_chunk.js.map",
+//     "favorites_chunk.js.map",
+//     "collectionDiscovery_chunk.js.map",
+//     "atoz_chunk.js.map",
+//     "account_chunk_web_pack_generated.js.map",
+//     "almaViewer_chunk_web_pack_generated.js.map",
+//     "angular.js.map",
+//     "atoz_chunk_web_pack_generated.js.map",
+//     "bootstrap_bundle.js.map",
+//     "bundle.js.map",
+//     "collectionDiscovery_chunk_web_pack_generated.js.map",
+//     "favorites_chunk_web_pack_generated.js.map",
+//     "fullView_chunk_web_pack_generated.js.map"];
+// Primo February 2024 Release
+const Parts = ["bundle.js.map"];
 async function extract(uri, outDir, primoType = 'primo-explore' ) {
     outDir = path.resolve(outDir.replace(/^\~/, os.homedir()));
     const mapsDir = `${outDir}/tmp/maps`;
@@ -38,7 +39,7 @@ async function extract(uri, outDir, primoType = 'primo-explore' ) {
     await copyFiles(outDir);
 }
 
-async function downloadMaps(mapsDir, uri, primoType = 'primo-explore') {
+async function downloadMaps(mapsDir, uri, primoType = 'discovery') {
     console.log(mapsDir);
     mkdirp.sync(mapsDir);
     let filepaths = []
@@ -185,20 +186,25 @@ function dumpTemplates(templatePath, outDir) {
 }
 
 async function copyFiles(outDir) {
-    console.log("\t\tCopying code");
-    glob(`${outDir}/tmp/**/webapp/components/**`, (er, files) => {
-        files.forEach((f) => {
-            try {
-                let copyFile = `${outDir}${path.sep}source${path.sep}www${path.sep}components${f.split(`webapp${path.sep}components`).pop()}`.replace('/', path.sep);
-                mkdirp.sync(path.dirname(copyFile));
-                if (fs.existsSync(f) && fs.lstatSync(f).isFile()) {
-                    fs.copyFileSync(f, copyFile);
-                }
-            } catch (e) {
-                console.log(e.message);
-            }
-        })
-    })
-}
+    const files = await glob(`${outDir}/tmp/**/webapp/components/**`);
+    console.log(`\tCopying source files(${files.length})`);
+    files.forEach((f) => {
+      try {
+        let copyFile = `${outDir}${path.sep}source${path.sep}www${
+          path.sep
+        }components${f.split(`webapp${path.sep}components`).pop()}`.replace(
+          "/",
+          path.sep
+        );
+  
+        mkdirp.sync(path.dirname(copyFile));
+        if (fs.existsSync(f) && fs.lstatSync(f).isFile()) {
+          fs.copyFileSync(f, copyFile);
+        }
+      } catch (e) {
+        console.log(e.message);
+      }
+    });
+  }
 
 export default extract;
