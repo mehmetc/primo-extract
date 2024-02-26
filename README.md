@@ -4,7 +4,6 @@ Extract code and templates from the Primo NUI.
 
 ```
 For Primo local install use a version < 0.14
-```
 !!!You need a node.js(7.6 or better) that support async/await!!!
 ```
 
