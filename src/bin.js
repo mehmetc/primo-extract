@@ -12,15 +12,14 @@ import extract from './primo'
 "use strict";
 
 function usage(){
-    console.log("usage: primoExtract --primo=https://your.primo.instance --outDir=/directory/to/exported/source --ve=false\n\n");
+    console.log("usage: primoExtract --primo=https://your.primo.instance --outDir=/directory/to/exported/source --nde\n\n");
 }
 
-console.log(`\nPrimo Extract NUI source code.\nversion ${version}. Optimized for PrimoVE. Use version <0.14 for Primo Classic\n\tWhen code is the manual ...\n\nKULeuven/LIBIS (c)2024\n\n`);
+console.log(`\nPrimo Extract NUI source code.\nversion ${version}. Use version <0.14 for Primo Classic, Use version <0.19 for PrimoVE and >=0.19 for NDE.\n\tWhen code is the manual ...\n\nKULeuven/LIBIS (c)2026\n\n`);
 
 
 var argv = minimist(process.argv.slice(2),{
     string: 'primo',
-    boolean: 've',
     boolean: ['help'],
     alias: { h: 'help'}
 });
@@ -32,12 +31,9 @@ if (argv.h || argv.help) {
 
 if (Object.keys(argv).includes("primo")) {
     let primoUri = argv.primo;
-    let outDir = Object.keys(argv).includes('outDir') ? argv.outDir : process.cwd()    
-    if (argv.ve == false) {        
-        extract(primoUri, outDir, 'primo-explore');    
-    } else {        
-        extract(primoUri, outDir, 'discovery');        
-    }   
+    let outDir = Object.keys(argv).includes('outDir') ? argv.outDir : process.cwd()  
+    let primoType = Object.keys(argv).includes('nde') ? 'nde' : 'discovery';
+    extract(primoUri, outDir, primoType);
 } else {
     usage();
 }

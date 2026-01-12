@@ -7,34 +7,56 @@ exports.default = void 0;
 var _sourceMap = _interopRequireDefault(require("source-map"));
 var _fs = _interopRequireDefault(require("fs"));
 var _path = _interopRequireDefault(require("path"));
-var _mkdirp = _interopRequireDefault(require("mkdirp"));
 var _axios = _interopRequireDefault(require("axios"));
 var _os = _interopRequireDefault(require("os"));
-var _glob = _interopRequireDefault(require("glob"));
+var _glob = require("glob");
 var _jsBeautify = require("js-beautify");
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-// Primo May 2023 Release
-// const Parts = [
-//     "app.js.map",
-//     "vendor.js.map",
-//     "account_chunk.js.map",
-//     "almaViewer_chunk.js.map",
-//     "fullView_chunk.js.map",
-//     "favorites_chunk.js.map",
-//     "collectionDiscovery_chunk.js.map",
-//     "atoz_chunk.js.map",
-//     "account_chunk_web_pack_generated.js.map",
-//     "almaViewer_chunk_web_pack_generated.js.map",
-//     "angular.js.map",
-//     "atoz_chunk_web_pack_generated.js.map",
-//     "bootstrap_bundle.js.map",
-//     "bundle.js.map",
-//     "collectionDiscovery_chunk_web_pack_generated.js.map",
-//     "favorites_chunk_web_pack_generated.js.map",
-//     "fullView_chunk_web_pack_generated.js.map"];
-
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 // Primo February 2024 Release
-const Parts = ["bundle.js.map"];
+const Parts = {
+  discovery: ["bundle.js.map"],
+  nde: []
+};
+async function getNDEMapFilenames(uri) {
+  try {
+    console.log('Determining NDE map filenames...');
+
+    // Step 1: Fetch index.html to extract main.xxxx.js filename
+    const indexUrl = `${uri}/nde/index.html`;
+    console.log(`Fetching ${indexUrl}`);
+    const indexResponse = await _axios.default.get(indexUrl);
+    const indexHtml = indexResponse.data;
+
+    // Extract main.xxxx.js from script tag
+    // Looking for pattern like: <script src="main.4b1b4e99f9ea1359.js" ...>
+    const mainJsMatch = indexHtml.match(/<script[^>]+src=["']([^"']*main\.[a-f0-9]+\.js)["']/i);
+    if (!mainJsMatch) {
+      throw new Error('Could not find main.xxxx.js in index.html');
+    }
+    const mainJsFilename = mainJsMatch[1];
+    const mainJsMapFilename = `${mainJsFilename}.map`;
+    console.log(`Found main.js: ${mainJsFilename}`);
+
+    // Step 2: Fetch main.js to extract src_bootstrap_ts filename
+    const mainJsUrl = `${uri}/nde/${mainJsFilename}`;
+    console.log(`Fetching ${mainJsUrl} to find bootstrap file`);
+    const mainJsResponse = await _axios.default.get(mainJsUrl);
+    const mainJsContent = mainJsResponse.data;
+
+    // Extract src_bootstrap_ts.xxxx.js from the main.js content
+    // Looking for pattern like: src_bootstrap_ts:"b855a366f64a6056"
+    const bootstrapMatch = mainJsContent.match(/src_bootstrap_ts:"([a-f0-9]+)"/);
+    if (!bootstrapMatch) {
+      throw new Error('Could not find src_bootstrap_ts.xxxx.js in main.js');
+    }
+    const bootstrapJsMapFilename = `src_bootstrap_ts.${bootstrapMatch[1]}.js.map`;
+    console.log(`Found bootstrap file: src_bootstrap_ts.${bootstrapMatch[1]}.js`);
+    return [mainJsMapFilename, bootstrapJsMapFilename];
+  } catch (error) {
+    console.error('Error determining NDE map filenames:', error.message);
+    throw error;
+  }
+}
 async function extract(uri, outDir, primoType = 'discovery') {
   outDir = _path.default.resolve(outDir.replace(/^\~/, _os.default.homedir()));
   const mapsDir = `${outDir}/tmp/maps`;
@@ -44,13 +66,25 @@ async function extract(uri, outDir, primoType = 'discovery') {
 }
 async function downloadMaps(mapsDir, uri, primoType = 'discovery') {
   console.log(mapsDir);
-  _mkdirp.default.sync(mapsDir);
+  _fs.default.mkdirSync(mapsDir, {
+    recursive: true
+  });
   let filepaths = [];
   console.log(`Primo type = ${primoType}`);
-  await Promise.all(Parts.map(async part => {
+
+  // Get the parts list for this primoType
+  let partsList;
+  if (primoType === 'nde') {
+    // Dynamically determine NDE map filenames
+    partsList = await getNDEMapFilenames(uri);
+  } else {
+    // Use static parts list for discovery
+    partsList = Parts[primoType] || Parts.discovery;
+  }
+  await Promise.all(partsList.map(async part => {
     console.log(`Fetching part ${part}`);
     try {
-      const file = await getMap(`${uri}/${primoType}/lib/${part}`);
+      const file = await getMap(`${uri}/${primoType}/${part}`);
       if (file.status == 200) {
         const filename = _path.default.parse(file.request.path).base;
         const filepath = `${mapsDir}${_path.default.sep}${filename}`;
@@ -65,6 +99,7 @@ async function downloadMaps(mapsDir, uri, primoType = 'discovery') {
   return filepaths;
 }
 async function getMap(uri) {
+  console.log(`loading ${uri}`);
   return _axios.default.get(uri, {
     validateStatus: () => true
   });
@@ -92,7 +127,13 @@ async function readMapFile(filename) {
 }
 async function writeSourceFile(sourceWritePath, source) {
   return new Promise((resolve, reject) => {
-    _mkdirp.default.sync(_path.default.dirname(sourceWritePath));
+    // Handle null or undefined source
+    if (source === null || source === undefined) {
+      source = "";
+    }
+    _fs.default.mkdirSync(_path.default.dirname(sourceWritePath), {
+      recursive: true
+    });
     _fs.default.writeFile(sourceWritePath, source, err => {
       if (err) {
         console.log(`\n\n\n${_path.default.dirname(sourceWritePath)}\n\n\n`);
@@ -168,18 +209,22 @@ function dumpTemplates(templatePath, outDir) {
   t.forEach(function (d) {
     Object.keys(d).forEach(function (k) {
       let sourceWritePath = `${outDir}${_path.default.sep}source${_path.default.sep}html${_path.default.sep}${k}`;
-      _mkdirp.default.sync(_path.default.dirname(sourceWritePath));
+      _fs.default.mkdirSync(_path.default.dirname(sourceWritePath), {
+        recursive: true
+      });
       _fs.default.writeFileSync(sourceWritePath, (0, _jsBeautify.html)(d[k]));
     });
   });
 }
 async function copyFiles(outDir) {
-  const files = await (0, _glob.default)(`${outDir}/tmp/**/webapp/components/**`);
+  const files = await (0, _glob.glob)(`${outDir}/tmp/**/webapp/components/**`);
   console.log(`\tCopying source files(${files.length})`);
   files.forEach(f => {
     try {
       let copyFile = `${outDir}${_path.default.sep}source${_path.default.sep}www${_path.default.sep}components${f.split(`webapp${_path.default.sep}components`).pop()}`.replace("/", _path.default.sep);
-      _mkdirp.default.sync(_path.default.dirname(copyFile));
+      _fs.default.mkdirSync(_path.default.dirname(copyFile), {
+        recursive: true
+      });
       if (_fs.default.existsSync(f) && _fs.default.lstatSync(f).isFile()) {
         _fs.default.copyFileSync(f, copyFile);
       }

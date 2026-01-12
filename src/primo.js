@@ -1,35 +1,64 @@
 import sourceMap from 'source-map'
 import fs from 'fs'
 import path from 'path'
-import mkdirp from 'mkdirp'
 import axios from 'axios'
 import os from 'os'
-import glob from 'glob'
+import { glob } from 'glob'
 import { html as beautifyHtml } from 'js-beautify'
 import { js as beautifyJS } from 'js-beautify'
 
-// Primo May 2023 Release
-// const Parts = [
-//     "app.js.map",
-//     "vendor.js.map",
-//     "account_chunk.js.map",
-//     "almaViewer_chunk.js.map",
-//     "fullView_chunk.js.map",
-//     "favorites_chunk.js.map",
-//     "collectionDiscovery_chunk.js.map",
-//     "atoz_chunk.js.map",
-//     "account_chunk_web_pack_generated.js.map",
-//     "almaViewer_chunk_web_pack_generated.js.map",
-//     "angular.js.map",
-//     "atoz_chunk_web_pack_generated.js.map",
-//     "bootstrap_bundle.js.map",
-//     "bundle.js.map",
-//     "collectionDiscovery_chunk_web_pack_generated.js.map",
-//     "favorites_chunk_web_pack_generated.js.map",
-//     "fullView_chunk_web_pack_generated.js.map"];
 
 // Primo February 2024 Release
-const Parts = ["bundle.js.map"];
+const Parts = {
+  discovery: ["bundle.js.map"],
+  nde: [],
+};
+
+async function getNDEMapFilenames(uri) {
+    try {
+        console.log('Determining NDE map filenames...');
+
+        // Step 1: Fetch index.html to extract main.xxxx.js filename
+        const indexUrl = `${uri}/nde/index.html`;
+        console.log(`Fetching ${indexUrl}`);
+        const indexResponse = await axios.get(indexUrl);
+        const indexHtml = indexResponse.data;
+
+        // Extract main.xxxx.js from script tag
+        // Looking for pattern like: <script src="main.4b1b4e99f9ea1359.js" ...>
+        const mainJsMatch = indexHtml.match(/<script[^>]+src=["']([^"']*main\.[a-f0-9]+\.js)["']/i);
+
+        if (!mainJsMatch) {
+            throw new Error('Could not find main.xxxx.js in index.html');
+        }
+
+        const mainJsFilename = mainJsMatch[1];
+        const mainJsMapFilename = `${mainJsFilename}.map`;
+        console.log(`Found main.js: ${mainJsFilename}`);
+
+        // Step 2: Fetch main.js to extract src_bootstrap_ts filename
+        const mainJsUrl = `${uri}/nde/${mainJsFilename}`;
+        console.log(`Fetching ${mainJsUrl} to find bootstrap file`);
+        const mainJsResponse = await axios.get(mainJsUrl);
+        const mainJsContent = mainJsResponse.data;
+
+        // Extract src_bootstrap_ts.xxxx.js from the main.js content
+        // Looking for pattern like: src_bootstrap_ts:"b855a366f64a6056"
+        const bootstrapMatch = mainJsContent.match(/src_bootstrap_ts:"([a-f0-9]+)"/);
+
+        if (!bootstrapMatch) {
+            throw new Error('Could not find src_bootstrap_ts.xxxx.js in main.js');
+        }
+
+        const bootstrapJsMapFilename = `src_bootstrap_ts.${bootstrapMatch[1]}.js.map`;
+        console.log(`Found bootstrap file: src_bootstrap_ts.${bootstrapMatch[1]}.js`);
+
+        return [mainJsMapFilename, bootstrapJsMapFilename];
+    } catch (error) {
+        console.error('Error determining NDE map filenames:', error.message);
+        throw error;
+    }
+}
 
 async function extract(uri, outDir, primoType = 'discovery' ) {
     outDir = path.resolve(outDir.replace(/^\~/, os.homedir()));
@@ -42,14 +71,25 @@ async function extract(uri, outDir, primoType = 'discovery' ) {
 
 async function downloadMaps(mapsDir, uri, primoType = 'discovery') {
     console.log(mapsDir);
-    mkdirp.sync(mapsDir);
+    fs.mkdirSync(mapsDir, { recursive: true });
     let filepaths = []
 
     console.log(`Primo type = ${primoType}`);
-    await Promise.all(Parts.map(async (part) => {
+
+    // Get the parts list for this primoType
+    let partsList;
+    if (primoType === 'nde') {
+        // Dynamically determine NDE map filenames
+        partsList = await getNDEMapFilenames(uri);
+    } else {
+        // Use static parts list for discovery
+        partsList = Parts[primoType] || Parts.discovery;
+    }
+
+    await Promise.all(partsList.map(async (part) => {
         console.log(`Fetching part ${part}`);
-        try {              
-            const file = await getMap(`${uri}/${primoType}/lib/${part}`);            
+        try {            
+            const file = await getMap(`${uri}/${primoType}/${part}`);
             if (file.status == 200) {
                 const filename = path.parse(file.request.path).base;
                 const filepath = `${mapsDir}${path.sep}${filename}`;
@@ -66,6 +106,7 @@ async function downloadMaps(mapsDir, uri, primoType = 'discovery') {
 }
 
 async function getMap(uri) {
+    console.log(`loading ${uri}`);
     return axios.get(uri, {
         validateStatus: () => true,
     });
@@ -98,7 +139,12 @@ async function readMapFile(filename) {
 
 async function writeSourceFile(sourceWritePath, source) {
     return new Promise((resolve, reject) => {
-        mkdirp.sync(path.dirname(sourceWritePath));
+        // Handle null or undefined source
+        if (source === null || source === undefined) {
+            source = "";
+        }
+
+        fs.mkdirSync(path.dirname(sourceWritePath), { recursive: true });
         fs.writeFile(sourceWritePath, source, (err) => {
             if (err) {
                 console.log(`\n\n\n${path.dirname(sourceWritePath)}\n\n\n`);
@@ -180,7 +226,7 @@ function dumpTemplates(templatePath, outDir) {
         Object.keys(d).forEach(function (k) {
             let sourceWritePath = `${outDir}${path.sep}source${path.sep}html${path.sep}${k}`;
 
-            mkdirp.sync(path.dirname(sourceWritePath));
+            fs.mkdirSync(path.dirname(sourceWritePath), { recursive: true });
             fs.writeFileSync(sourceWritePath, beautifyHtml(d[k]));
         });
     });
@@ -197,8 +243,8 @@ async function copyFiles(outDir) {
           "/",
           path.sep
         );
-  
-        mkdirp.sync(path.dirname(copyFile));
+
+        fs.mkdirSync(path.dirname(copyFile), { recursive: true });
         if (fs.existsSync(f) && fs.lstatSync(f).isFile()) {
           fs.copyFileSync(f, copyFile);
         }

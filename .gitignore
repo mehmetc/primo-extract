@@ -1,3 +1,4 @@
 node_modules/
-yarn.lock
 .vscode
+yarn.lock
+src/primo.js.old
