@@ -217,11 +217,20 @@ function dumpTemplates(templatePath, outDir) {
   });
 }
 async function copyFiles(outDir) {
-  const files = await (0, _glob.glob)(`${outDir}/tmp/**/webapp/components/**`);
+  let filesMap = 'webapp';
+  let tmpFiles = await (0, _glob.glob)(`${outDir}/tmp/**/${filesMap}/components/**`);
+  if (tmpFiles.length == 0) {
+    filesMap = 'app';
+    tmpFiles = await (0, _glob.glob)(`${outDir}/tmp/**/${filesMap}/components/**`);
+  }
+  if (tmpFiles.length == 0) {
+    throw "Couldn't find any files. Something probably changed.";
+  }
+  const files = tmpFiles;
   console.log(`\tCopying source files(${files.length})`);
   files.forEach(f => {
     try {
-      let copyFile = `${outDir}${_path.default.sep}source${_path.default.sep}www${_path.default.sep}components${f.split(`webapp${_path.default.sep}components`).pop()}`.replace("/", _path.default.sep);
+      let copyFile = `${outDir}${_path.default.sep}source${_path.default.sep}www${_path.default.sep}components${f.split(`${filesMap}${_path.default.sep}components`).pop()}`.replace("/", _path.default.sep);
       _fs.default.mkdirSync(_path.default.dirname(copyFile), {
         recursive: true
       });

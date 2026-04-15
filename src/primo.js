@@ -233,13 +233,25 @@ function dumpTemplates(templatePath, outDir) {
 }
 
 async function copyFiles(outDir) {
-    const files = await glob(`${outDir}/tmp/**/webapp/components/**`);
+    let filesMap = 'webapp';
+    let tmpFiles = await glob(`${outDir}/tmp/**/${filesMap}/components/**`);
+    
+    if (tmpFiles.length == 0) {
+        filesMap = 'app';
+        tmpFiles = await glob(`${outDir}/tmp/**/${filesMap}/components/**`);
+    }
+    if (tmpFiles.length == 0){
+        throw "Couldn't find any files. Something probably changed."
+    }
+    
+    const files = tmpFiles;
+
     console.log(`\tCopying source files(${files.length})`);
     files.forEach((f) => {
       try {
         let copyFile = `${outDir}${path.sep}source${path.sep}www${
           path.sep
-        }components${f.split(`webapp${path.sep}components`).pop()}`.replace(
+        }components${f.split(`${filesMap}${path.sep}components`).pop()}`.replace(
           "/",
           path.sep
         );

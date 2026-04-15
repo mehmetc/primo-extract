@@ -1,5 +1,5 @@
 # Primo Extract #
-Extract code and templates from the Primo.
+Extract code and templates from Primo.
 
 Use version <0.14 for Primo Classic, Use version <0.19 for PrimoVE and >=0.19 for NDE.
 ```
